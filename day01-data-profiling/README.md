@@ -1,8 +1,8 @@
 # Day 01 — Data Profiling
 
-**Date completed:** [13-05-2026]  
+**Date completed:** 13-05-2026  
 **Tool:** Microsoft Excel  
-**Time taken:** [60 minutes]  
+**Time taken:** 60 minutes  
 
 ---
 
