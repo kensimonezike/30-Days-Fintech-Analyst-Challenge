@@ -203,8 +203,8 @@ If you are a recruiter, hiring manager, or fellow analyst — I would love to co
 
 | Platform | Link |
 |---|---|
-| 💼 LinkedIn | www.linkedin.com/in/kensimonezike(#) |
-| 📧 Email | kensimonezike@gmail.com(#) |
+| 💼 LinkedIn | www.linkedin.com/in/kensimonezike |
+| 📧 Email | kensimonezike@gmail.com |
 
 ---
 
