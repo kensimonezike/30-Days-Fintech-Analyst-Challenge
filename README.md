@@ -10,7 +10,7 @@ Hi, I am **Kensimon Ezike** — an aspiring fintech data analyst.
 
 I built this project to develop real, job-ready analytics skills by working through 30 days of increasingly complex fintech data tasks. Every day, I worked with real-world business data, answered real business questions, and documented my findings as a professional analyst would.
 
-📧 kensimonezike@gmail.com &nbsp;|&nbsp; 💼 www.linkedin.com/in/kensimonezike
+📧 kensimonezike@gmail.com &nbsp;|&nbsp; 💼 linkedin.com/in/kensimonezike
 
 ---
 
