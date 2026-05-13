@@ -27,7 +27,9 @@ Profile the dataset column by column, identify every data quality issue, and wri
 
 | # | Issue | Rows Affected | Business Risk |
 |---|---|---|---|
-| 1 | Duplicate transaction IDs | Rows [X] and [X] | Revenue double-counted |
+| 1 | Duplicate transaction IDs | Found 2 duplicate transaction IDs: TXN-0003 appears in rows 3 and 8 TXN-0015 appears in rows 15 and 22.| Any SUM of transaction volume or revenue will count these transactions twice. If either
+transaction is 100,000, our reported volume is overstated by 100,000. Must be investigated with the
+engineering team to determine if these are processing duplicates before analysis proceeds.] |
 | 2 | Missing region values | 5 rows (rows X, X, X, X, X) | Regional analysis inaccurate |
 | 3 | Negative transaction amounts | Rows [X] and [X] | Total volume understated |
 | 4 | Inconsistent status casing | 5 rows | Success rate KPI wrong |
