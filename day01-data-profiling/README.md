@@ -2,8 +2,6 @@
 
 **Date completed:** 13-05-2026  
 **Tool:** Microsoft Excel  
-**Time taken:** 60 minutes  
-
 ---
 
 ## 📋 Business Scenario
