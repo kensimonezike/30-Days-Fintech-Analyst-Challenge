@@ -1,4 +1,4 @@
-# Day 02 — Data Cleaning + First Pivot Analysis
+# Day 02. Data Cleaning + First Pivot Analysis
 
 **Date completed:** 14-05-2026  
 **Tool:** Microsoft Excel
@@ -58,7 +58,7 @@ Transaction activity remained relatively consistent throughout January, with occ
 ## 📁 Files
 
 - `palmpay_cleaned.xlsx` — cleaned dataset with helper columns and 3 pivot tables
-- `screenshots/helper_columns.png` — columns I-M with cleaning formulas
-- `screenshots/pivot1_channel.png` — success rate by channel
-- `screenshots/pivot2_region.png` — volume by region and type
-- `screenshots/pivot3_trend.png` — daily transaction trend
+- `screenshots/helper_columns.png`
+- `screenshots/pivot1_channel.png` 
+- `screenshots/pivot2_region.png` 
+- `screenshots/pivot3_trend.png` 
