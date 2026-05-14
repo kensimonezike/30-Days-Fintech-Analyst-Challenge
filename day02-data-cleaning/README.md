@@ -57,7 +57,7 @@ Transaction activity remained relatively consistent throughout January, with occ
 
 ## 📁 Files
 
-- `palmpay_cleaned.xlsx` — cleaned dataset with helper columns and 3 pivot tables
+- `palmpay_cleaned.xlsx`
 - `screenshots/helper_columns.png`
 - `screenshots/pivot1_channel.png` 
 - `screenshots/pivot2_region.png` 
