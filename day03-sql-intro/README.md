@@ -3,7 +3,7 @@
 **Date completed:** 15-05-2026  
 **Tool:** PostgreSQL + DBeaver  
  
-**Phase:** 1 — Foundations
+**Phase:** 1  Foundations
 
 ---
 
@@ -11,7 +11,7 @@
 
 My manager asked me to stop relying solely on Excel and start querying the PalmPay transaction
 database directly using SQL. The goal was to answer five business questions about January 2024
-transaction data using SQL queries — the same questions I answered with pivot tables on Day 2,
+transaction data using SQL queries, the same questions I answered with pivot tables on Day 2,
 but now written as reusable, scalable code.
 
 ---
@@ -31,7 +31,7 @@ but now written as reusable, scalable code.
 3. Created `palmpay_db` database
 4. Created `transactions` table with 8 columns matching the cleaned Excel dataset
 5. Loaded 50 rows from `palmpay_jan2024.csv` via DBeaver CSV import
-6. Verified: `SELECT COUNT(*) FROM transactions;` → returned **50** ✅
+6. Verified: `SELECT COUNT(*) FROM transactions;` → returned **50**
 
 ---
 
@@ -72,7 +72,7 @@ CREATE TABLE transactions (
 
 ---
 
-## Query 1 — Total Transactions and Volume
+## Query 1: Total Transactions and Volume
 
 **Business question:** How many transactions were processed in January, and what was the total volume?
 
@@ -95,12 +95,12 @@ FROM transactions;
 > Always state which figure you are using in any report and document why.
 
 **Business finding:** PalmPay processed 50 transactions in January 2024. Raw total volume
-was ₦6,145,400 (₦6,834,720 after cleaning). The average transaction value was ₦122,908 —
+was ₦6,145,400 (₦6,834,720 after cleaning). The average transaction value was ₦122,908,
 a useful baseline for flagging unusually large or suspiciously small transactions.
 
 ---
 
-## Query 2 — Transaction Breakdown by Status
+## Query 2: Transaction Breakdown by Status
 
 **Business question:** What is the success rate of January transactions? Break it down by status.
 
@@ -134,7 +134,7 @@ approximately ₦1.1M in volume that generated no revenue for the business.
 
 ---
 
-## Query 3 — Failed Transactions by Channel
+## Query 3: Failed Transactions by Channel
 
 **Business question:** Which channel had the most failed transactions in January?
 
@@ -160,17 +160,17 @@ LIMIT 4;
 
 > 💡 **Key learning:** `WHERE status = 'Failed'` filters rows BEFORE they enter
 > `GROUP BY`. Only the 9 failed rows are grouped and counted. This is the correct
-> approach — not filtering first and grouping on all 50 rows, which would give
+> approach, not filtering first and grouping on all 50 rows, which would give
 > total counts per channel, not failure counts.
 
-**Business finding:** Web had the most failed transactions in January with 5 failures —
-more than USSD and App combined and 55% of all failures. Agent was the only
+**Business finding:** Web had the most failed transactions in January with 5 failures;
+more than USSD and App combined, and 55% of all failures. Agent was the only
 channel with zero failures. This aligns with the Day 2 Pivot Table 1 finding
 and confirms Web reliability should be the first engineering priority.
 
 ---
 
-## Query 4 — Transaction Volume by Region (Successful Only)
+## Query 4: Transaction Volume by Region (Successful Only)
 
 **Business question:** Which region generated the most successful transaction volume in January?
 
@@ -205,19 +205,19 @@ ORDER BY total_volume_ngn DESC;
 > In production, use the cleaned `region_clean` column or impute from source systems.
 >
 > **2. Ibadan negative total:** The 2 negative amount rows fall under Ibadan,
-> making its total appear as -₦16,620. This is factually wrong — Ibadan customers
+> making its total appear as -₦16,620. This is factually wrong; Ibadan customers
 > transacted, but the data error distorts the result. A business report showing
 > Ibadan with negative revenue would cause serious confusion.
 > **This is exactly why Day 2 data cleaning was not optional.**
 
-**Business finding:** Lagos generated the highest successful transaction volume at ₦2,125,170 —
-more than double Kano in second place at ₦1,021,240. Lagos customers also transact at
+**Business finding:** Lagos generated the highest successful transaction volume at ₦2,125,170;
+more than double Kano's ₦1,021,240. Lagos customers also transact at
 the highest average value (₦236,130 vs the overall average of ₦122,908), indicating
 a higher-spending customer segment concentrated in Lagos.
 
 ---
 
-## Query 5 — Breakdown by Transaction Type
+## Query 5: Breakdown by Transaction Type
 
 **Business question:** Which transaction type drives the most volume? What is the average and largest transaction per type?
 
@@ -244,22 +244,22 @@ ORDER BY total_volume_ngn DESC;
 | Withdrawal | 11 | 22% | 786,120.00 | 71,465.45 | 472,840.00 |
 | Bill Payment | 7 | 14% | -377,210.00 | -53,887.14 | 46,560.00 |
 
-> ⚠️ **Data quality flag:** Bill Payment shows a negative total (₦-377,210).
+> **Data quality flag:** Bill Payment shows a negative total (₦-377,210).
 > The 2 negative raw amount rows fall under this transaction type, corrupting the figure.
-> The SQL is correct — the data is not. Always add `WHERE amount_ngn > 0`
+> The SQL is correct, the data is not. Always add `WHERE amount_ngn > 0`
 > or use cleaned amounts when this table is used for revenue reporting.
 
 **Business finding:** Airtime was the highest-volume transaction type in January at ₦3,106,970
 across 12 transactions (24% of all activity). Despite being small by count, Airtime had the
-highest average transaction value at ₦258,914 — suggesting bulk or high-denomination
+highest average transaction value at ₦258,914, suggesting bulk or high-denomination
 airtime purchases rather than small top-ups. Transfers came third by volume
 but second by average value at ₦140,350, confirming their importance as a revenue driver.
 
 ---
 
-## Bonus Query — Largest Single Transaction
+## Bonus Query: Largest Single Transaction
 
-**Business question:** What was the single largest transaction in January — and who made it?
+**Business question:** What was the single largest transaction in January, and who made it?
 
 ```sql
 SELECT *
@@ -284,7 +284,7 @@ suspicious, but because size alone warrants documentation.
 
 ## Key Lessons Learned
 
-1. **`WHERE` filters BEFORE `GROUP BY`** — always apply status or amount conditions before
+1. **`WHERE` filters BEFORE `GROUP BY`** always apply status or amount conditions before
    grouping to avoid aggregating the wrong rows.
 
 2. **Raw data poisons SQL results too** — the negative amounts and NULL regions from Day 1
