@@ -4,9 +4,9 @@
 
 SELECT
     region,
-    COUNT(*)                    AS transaction_count,
-    SUM(amount_ngn)             AS total_volume_ngn,
-    ROUND(AVG(amount_ngn), 2)   AS avg_amount_ngn
+    COUNT(*)                            AS transaction_count,
+    SUM(amount_ngn)                     AS total_volume_ngn,
+    ROUND(AVG(amount_ngn)::numeric, 2)  AS avg_amount_ngn
 FROM transactions
 WHERE status = 'Success'
 GROUP BY region
