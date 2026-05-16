@@ -1,9 +1,8 @@
-# Day 03 — SQL Introduction: First Queries on Transaction Data
+# Day 03. SQL Introduction: First Queries on Transaction Data
 
-**Date completed:** [DD-MMM-2024]  
+**Date completed:** 15-05-2026  
 **Tool:** PostgreSQL + DBeaver  
-**Time taken:** [X] minutes  
-**Score:** [X/100]  
+ 
 **Phase:** 1 — Foundations
 
 ---
@@ -79,9 +78,9 @@ CREATE TABLE transactions (
 
 ```sql
 SELECT
-    COUNT(*)                    AS total_transactions,
-    SUM(amount_ngn)             AS total_volume_ngn,
-    ROUND(AVG(amount_ngn), 2)   AS avg_transaction_ngn
+    COUNT(*) AS total_transactions,
+    SUM(amount_ngn) AS total_volume_ngn,
+    ROUND(AVG(amount_ngn)::numeric, 2) AS avg_transaction_ngn
 FROM transactions;
 ```
 
@@ -91,7 +90,7 @@ FROM transactions;
 |---|---|---|
 | 50 | 6,145,400.00 | 122,908.00 |
 
-> ⚠️ **Data quality note:** This total includes 2 negative amount rows (a data issue
+> **DATA QUALITY NOTE:** This total includes 2 negative amount rows (a data issue
 > identified on Day 1). The correct clean volume after zeroing negatives is **₦6,834,720.00**.
 > Always state which figure you are using in any report and document why.
 
@@ -129,7 +128,7 @@ ORDER BY transaction_count DESC;
 > two separate queries and manual division.
 
 **Business finding:** 72% of January transactions completed successfully, 18% failed,
-and 10% remain pending. The 18% failure rate is a red flag — nearly 1 in 5 transactions
+and 10% remain pending. The 18% failure rate is a red flag; nearly 1 in 5 transactions
 did not complete. At an average value of ₦122,908, the 9 failed transactions represent
 approximately ₦1.1M in volume that generated no revenue for the business.
 
@@ -178,9 +177,9 @@ and confirms Web reliability should be the first engineering priority.
 ```sql
 SELECT
     region,
-    COUNT(*)                    AS transaction_count,
-    SUM(amount_ngn)             AS total_volume_ngn,
-    ROUND(AVG(amount_ngn), 2)   AS avg_amount_ngn
+    COUNT(*)                            AS transaction_count,
+    SUM(amount_ngn)                     AS total_volume_ngn,
+    ROUND(AVG(amount_ngn)::numeric, 2)  AS avg_amount_ngn
 FROM transactions
 WHERE status = 'Success'
 GROUP BY region
@@ -198,7 +197,7 @@ ORDER BY total_volume_ngn DESC;
 | Abuja | 5 | 327,370.00 | 65,474.00 |
 | Ibadan | 4 | -16,620.00 | -4,155.00 |
 
-> ⚠️ **Two data quality flags surfaced in this result:**
+> **Two data quality flags surfaced in this result:**
 >
 > **1. NULL region:** 5 successful transactions (₦995,720) have no region value.
 > These are the 5 missing region rows identified on Day 1. They appear as NULL here
@@ -225,11 +224,11 @@ a higher-spending customer segment concentrated in Lagos.
 ```sql
 SELECT
     transaction_type,
-    COUNT(*)                            AS total_count,
-    COUNT(*) * 100 / SUM(COUNT(*)) OVER() AS pct_of_transactions,
-    SUM(amount_ngn)                     AS total_volume_ngn,
-    ROUND(AVG(amount_ngn), 2)           AS avg_amount_ngn,
-    MAX(amount_ngn)                     AS largest_transaction_ngn
+    COUNT(*) AS total_count,
+    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() AS pct_of_transactions,
+    SUM(amount_ngn) AS total_volume_ngn,
+    ROUND(AVG(amount_ngn)::numeric, 2) AS avg_amount_ngn,
+    MAX(amount_ngn) AS largest_transaction_ngn
 FROM transactions
 GROUP BY transaction_type
 ORDER BY total_volume_ngn DESC;
@@ -330,8 +329,6 @@ day03-sql-intro/
 ├── query5_type_breakdown.sql
 ├── bonus_largest_transaction.sql
 └── screenshots/
-    ├── dbeaver_connection.png       ← DBeaver connected to palmpay_db
-    ├── transactions_table_load.png  ← 50 rows confirmed loaded
     ├── query1_result.png
     ├── query2_result.png
     ├── query3_result.png
@@ -340,5 +337,3 @@ day03-sql-intro/
 ```
 
 ---
-
-*Part of the [30-Day Fintech Data Analyst Bootcamp](../README.md) — PalmPay Analytics Case Study*
