@@ -4,11 +4,11 @@
 
 SELECT
     transaction_type,
-    COUNT(*)                              AS total_count,
-    COUNT(*) * 100 / SUM(COUNT(*)) OVER() AS pct_of_transactions,
-    SUM(amount_ngn)                       AS total_volume_ngn,
-    ROUND(AVG(amount_ngn), 2)             AS avg_amount_ngn,
-    MAX(amount_ngn)                       AS largest_transaction_ngn
+    COUNT(*) AS total_count,
+    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() AS pct_of_transactions,
+    SUM(amount_ngn) AS total_volume_ngn,
+    ROUND(AVG(amount_ngn)::numeric, 2) AS avg_amount_ngn,
+    MAX(amount_ngn) AS largest_transaction_ngn
 FROM transactions
 GROUP BY transaction_type
 ORDER BY total_volume_ngn DESC;
