@@ -1,6 +1,5 @@
 # Day 01. Data Profiling
 
-**Date completed:** 13-05-2026  
 **Tool:** Microsoft Excel 
 
 ---
