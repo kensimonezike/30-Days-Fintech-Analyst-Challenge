@@ -5,10 +5,10 @@
 
 SELECT
     c.account_tier,
-    COUNT(t.transaction_id)             AS transaction_count,
-    SUM(t.amount_ngn)                   AS total_volume_ngn,
-    ROUND(AVG(t.amount_ngn), 2)         AS avg_transaction_ngn,
-    MAX(t.amount_ngn)                   AS largest_transaction_ngn
+    COUNT(t.transaction_id)              AS transaction_count,
+    SUM(t.amount_ngn)                    AS total_volume_ngn,
+    ROUND(AVG(t.amount_ngn)::numeric, 2) AS avg_transaction_ngn,
+    MAX(t.amount_ngn)                    AS largest_transaction_ngn
 FROM transactions AS t
 INNER JOIN customers AS c
     ON t.user_id = c.user_id
