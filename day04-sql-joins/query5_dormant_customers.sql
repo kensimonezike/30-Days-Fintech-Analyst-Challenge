@@ -1,7 +1,7 @@
 -- Query 5: Find customers who made ZERO transactions in January 2024
 -- Business question: Which registered customers are inactive this month?
+
 -- JOIN type: LEFT JOIN with customers as base table (tables swapped)
--- PalmPay Analytics | Day 4 | January 2024
 
 SELECT
     c.customer_id,
@@ -23,7 +23,7 @@ ORDER BY c.account_tier, c.full_name;
 -- CUS-024 | Rotimi Akande | Premium  | Lagos | 2023-06-15 | Verified | 200k-500k
 -- CUS-025 | Hadiza Sule   | VIP      | Lagos | 2023-06-15 | Verified | 200k-500k
 --
--- All 3 dormant customers are Verified KYC — they are eligible to transact
+-- All 3 dormant customers are Verified KYC, and they are eligible to transact
 -- but chose not to in January. This makes them highest-priority re-engagement targets.
 -- A VIP customer who does not transact in a full month is a churn risk.
 
