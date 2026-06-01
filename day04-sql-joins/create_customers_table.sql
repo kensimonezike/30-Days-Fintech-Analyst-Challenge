@@ -1,6 +1,4 @@
 -- Create and populate the customers table
--- Run this in palmpay_db BEFORE running any JOIN queries
--- PalmPay Analytics | Day 4 | January 2024
 
 CREATE TABLE customers (
     customer_id         VARCHAR(20) PRIMARY KEY,
@@ -45,6 +43,4 @@ VALUES
   ('CUS-024','USR-9902','Rotimi Akande',    'Premium', '2023-06-15','Lagos',         'Verified','200k-500k'),
   ('CUS-025','USR-9903','Hadiza Sule',      'VIP',     '2023-06-15','Lagos',         'Verified','200k-500k');
 
--- Verify: SELECT COUNT(*) FROM customers;  → should return 25
--- Verify: SELECT * FROM customers WHERE user_id IN (SELECT user_id FROM transactions); → 22 rows
--- Verify: SELECT COUNT(DISTINCT user_id) FROM transactions; → 22 unique users
+-- To Verify: SELECT COUNT(*) FROM customers;  → should return 25
