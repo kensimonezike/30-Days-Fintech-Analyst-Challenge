@@ -1,17 +1,13 @@
-# Day 04 — SQL Joins: Linking Tables to Answer Richer Business Questions
+# Day 04. SQL Joins: Linking Tables to Answer Richer Business Questions
 
-**Date completed:** [DD-MMM-2024]  
 **Tool:** PostgreSQL + DBeaver  
-**Time taken:** [X] minutes  
-**Score:** [X/100]  
-**Phase:** 1 — Foundations
 
 ---
 
 ## Business Scenario
 
 My manager wanted me to go beyond single-table queries. Real fintech databases
-have multiple tables that connect together — transactions record WHAT happened,
+have multiple tables that connect. Transactions record WHAT happened,
 customers record WHO did it. Today I learned SQL JOINs to link both tables using
 the shared `user_id` column, enabling richer business questions that neither table
 could answer alone.
@@ -362,5 +358,3 @@ day04-sql-joins/
 JOINs transform transaction data into customer intelligence.
 
 ---
-
-*Part of the [30-Day Fintech Data Analyst Bootcamp](../README.md) — PalmPay Analytics Case Study*
