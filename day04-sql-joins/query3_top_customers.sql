@@ -1,16 +1,16 @@
 -- Query 3: Top 10 customers by total transaction spend
 -- Business question: Who are our highest-value customers in January?
+
 -- JOIN type: INNER JOIN
--- PalmPay Analytics | Day 4 | January 2024
 
 SELECT
     c.full_name,
     c.account_tier,
     c.city,
     c.kyc_status,
-    COUNT(t.transaction_id)             AS total_transactions,
-    SUM(t.amount_ngn)                   AS total_spend_ngn,
-    ROUND(AVG(t.amount_ngn), 2)         AS avg_transaction_ngn
+    COUNT(t.transaction_id)             	AS total_transactions,
+    SUM(t.amount_ngn)                   	AS total_spend_ngn,
+    ROUND(AVG(t.amount_ngn)::numeric, 2)   	AS avg_transaction_ngn
 FROM transactions AS t
 INNER JOIN customers AS c
     ON t.user_id = c.user_id
@@ -30,5 +30,5 @@ LIMIT 10;
 -- Fatima Al-Hassan   (Premium,  Ibadan)        | 1 txns | ₦386,320  | avg ₦386,320
 -- Uche Nnamdi        (VIP,      Kano)          | 4 txns | ₦376,950  | avg  ₦94,238
 --
--- Key insight: The #1 spender (Babatunde Oladele) is a Standard tier customer —
+-- Key insight: The #1 spender (Babatunde Oladele) is a Standard tier customer:
 -- a strong candidate for a Premium upgrade offer.
