@@ -1,6 +1,5 @@
 # Day 02. Data Cleaning + First Pivot Analysis
 
-**Date completed:** 14-05-2026  
 **Tool:** Microsoft Excel
 
 ---
