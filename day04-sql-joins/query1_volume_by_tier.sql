@@ -1,7 +1,7 @@
 -- Query 1: Total transaction volume and count by account tier
 -- Business question: Which account tier generates the most transaction volume?
+
 -- JOIN type: INNER JOIN (only transactions with a matching customer record)
--- PalmPay Analytics | Day 4 | January 2024
 
 SELECT
     c.account_tier,
