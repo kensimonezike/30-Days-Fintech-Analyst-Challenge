@@ -6,7 +6,7 @@ A hands-on, project-based learning journey from Excel fundamentals to profession
 
 ## 👤 About Me
 
-Hi, I am **Kensimon Ezike** — an aspiring fintech data analyst.
+Hi, I am **Kensimon Ezike**, an aspiring fintech data analyst.
 
 I built this project to develop real, job-ready analytics skills by working through 30 days of increasingly complex fintech data tasks. Every day, I worked with real-world business data, answered real business questions, and documented my findings as a professional analyst would.
 
