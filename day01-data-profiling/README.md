@@ -46,6 +46,6 @@ compare to the overall average?
 
 ## 📁 Files
 
-- `palmpay_transactions_jan2024.xlsx` — raw dataset with flag columns and data profile sheet
-- `screenshots/data_profile.png` — column-by-column profile table
-- `screenshots/issues_found.png` — flagged rows in the dataset
+- `palmpay_transactions_jan2024.xlsx` - raw dataset with flag columns and data profile sheet
+- `screenshots/data_profile.png` - column-by-column profile table
+- `screenshots/issues_found.png` - flagged rows in the dataset
