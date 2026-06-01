@@ -1,6 +1,5 @@
 # Day 03. SQL Introduction: First Queries on Transaction Data
 
-**Date completed:** 15-05-2026  
 **Tool:** PostgreSQL + DBeaver  
  
 **Phase:** 1  Foundations
