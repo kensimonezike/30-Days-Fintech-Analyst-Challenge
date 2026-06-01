@@ -14,12 +14,12 @@ could answer alone.
 
 ---
 
-## New Table Added — customers
+## New Table Added: customers
 
 | Column | Type | Description |
 |---|---|---|
-| `customer_id` | VARCHAR(20) | Primary key — unique per customer |
-| `user_id` | VARCHAR(20) | Foreign key — links to transactions table |
+| `customer_id` | VARCHAR(20) | Primary key (unique per customer) |
+| `user_id` | VARCHAR(20) | Foreign key (links to transactions table) |
 | `full_name` | VARCHAR(100) | Customer full name |
 | `account_tier` | VARCHAR(20) | Standard / Premium / VIP |
 | `signup_date` | DATE | Date customer registered |
@@ -27,7 +27,7 @@ could answer alone.
 | `kyc_status` | VARCHAR(20) | Verified / Pending / Failed |
 | `monthly_income_band` | VARCHAR(20) | Income bracket |
 
-**Table stats:** 25 customers total — 22 active (matched to transactions), 3 dormant (no transactions in January).
+**Table stats:** 25 customers total. 22 active (matched to transactions), 3 dormant (no transactions in January).
 
 ---
 
@@ -35,16 +35,16 @@ could answer alone.
 
 | JOIN Type | What it returns | When to use it |
 |---|---|---|
-| `INNER JOIN` | Only rows with a match in BOTH tables | Revenue analysis, customer behaviour — need clean matched data |
+| `INNER JOIN` | Only rows with a match in BOTH tables | Revenue analysis, customer behaviour, need clean matched data |
 | `LEFT JOIN` | ALL rows from the left table + matches from right (NULL if no match) | Finding orphaned records, checking data completeness |
-| `LEFT JOIN + IS NULL` | Only left table rows with NO match in right table | Anti-join — finding gaps (orphaned transactions, missing customers) |
+| `LEFT JOIN + IS NULL` | Only left table rows with NO match in right table | Anti-join: finding gaps (orphaned transactions, missing customers) |
 | Swapped `LEFT JOIN` | All customers + their transactions (NULL if none) | Finding dormant customers |
 
 **New SQL concepts introduced today:**
-- `AS t` / `AS c` — table aliases to avoid typing full table names and resolve ambiguity
-- `t.column_name` — column prefixes to specify which table each column comes from
-- `CASE WHEN condition THEN value END` — SQL's IF statement inside aggregations
-- Anti-join pattern — `LEFT JOIN + WHERE right_table.id IS NULL`
+- `AS t` / `AS c`: table aliases to avoid typing full table names and resolve ambiguity
+- `t.column_name`: column prefixes to specify which table each column comes from
+- `CASE WHEN condition THEN value END`: SQL's IF statement inside aggregations
+- Anti-join pattern: `LEFT JOIN + WHERE right_table.id IS NULL`
 
 ---
 
@@ -63,15 +63,15 @@ channel                         kyc_status
 region                          monthly_income_band
 ```
 
-The `user_id` column is the bridge — it exists in both tables and links every transaction
+The `user_id` column is the bridge; it exists in both tables and links every transaction
 to its corresponding customer profile.
 
 ---
 
-## Query 1 — Transaction Volume by Account Tier
+## Query 1: Transaction Volume by Account Tier
 
 **Business question:** Which account tier generates the most transaction volume?  
-**JOIN type:** INNER JOIN — only transactions with a matching customer record.
+**JOIN type:** INNER JOIN: only transactions with a matching customer record.
 
 ```sql
 SELECT
@@ -99,14 +99,14 @@ ORDER BY total_volume_ngn DESC;
 
 **Business finding:** Standard tier customers drove 63.5% of total matched volume
 in January — the highest share by far. However, VIP customers averaged ₦226,551
-per transaction vs ₦122,524 for Standard — 85% higher per transaction.
+per transaction vs ₦122,524 for Standard, 85% higher per transaction.
 A single VIP customer generates roughly twice the revenue per transaction.
-This confirms that VIP retention efforts have disproportionate revenue impact
+This confirms that VIP retention efforts have a disproportionate revenue impact
 and should be prioritised accordingly.
 
 ---
 
-## Query 2 — Success Rate by KYC Status
+## Query 2: Success Rate by KYC Status
 
 **Business question:** Do Verified KYC customers have better transaction success rates?  
 **JOIN type:** INNER JOIN. New concept: `CASE WHEN` inside `COUNT()`.
@@ -137,7 +137,7 @@ ORDER BY success_rate_pct DESC;
 | Verified | 36 | 25 | 9 | 69.4% |
 
 > 💡 **Unexpected finding:** Pending KYC customers had a HIGHER success rate (78.6%)
-> than Verified customers (69.4%) — and ALL 9 failures came from Verified accounts.
+> than Verified customers (69.4%), and ALL 9 failures came from Verified accounts.
 >
 > This is counter-intuitive. It could mean:
 > - Pending customers make smaller, simpler transactions that are less likely to fail
@@ -148,14 +148,14 @@ ORDER BY success_rate_pct DESC;
 > The next query should be: which specific Verified customers experienced failures?
 
 **Business finding:** Verified KYC customers had a 69.4% success rate vs 78.6%
-for Pending KYC — an unexpected reversal. All 9 January failures came from Verified
+for Pending KYC, an unexpected reversal. All 9 January failures came from Verified
 accounts. Engineering and compliance teams should investigate whether Verified account
 routing has a systematic issue, or whether the failures cluster around specific users
 that warrant a fraud review.
 
 ---
 
-## Query 3 — Top 10 Customers by Total Spend
+## Query 3: Top 10 Customers by Total Spend
 
 **Business question:** Who are our highest-value customers in January?  
 **JOIN type:** INNER JOIN.
@@ -201,7 +201,7 @@ its upgrade criteria and proactively reach out to high-spending Standard custome
 
 ---
 
-## Query 4 — Orphaned Transactions (Anti-Join)
+## Query 4: Orphaned Transactions (Anti-Join)
 
 **Business question:** How many transactions have NO matching customer record?  
 **JOIN type:** LEFT JOIN + WHERE IS NULL (anti-join pattern).
@@ -231,7 +231,7 @@ ORDER BY t.transaction_date;
 |---|---|---|---|
 | 50 | 50 | 0 | 100.0% |
 
-**Business finding:** All 50 January transactions have a matching customer record —
+**Business finding:** All 50 January transactions have a matching customer record, 
 a 100% referential integrity match rate. This is a positive data quality result.
 Zero orphaned transactions means every transaction can be attributed to a known
 customer, enabling reliable customer-level analytics.
@@ -243,7 +243,7 @@ customer, enabling reliable customer-level analytics.
 
 ---
 
-## Query 5 — Dormant Customers (Zero Transactions)
+## Query 5: Dormant Customers (Zero Transactions)
 
 **Business question:** Which registered customers made no transactions in January?  
 **JOIN type:** LEFT JOIN with customers as the base table (tables swapped from previous queries).
@@ -272,7 +272,7 @@ ORDER BY c.account_tier, c.full_name;
 | CUS-024 | Rotimi Akande | Premium | Lagos | 2023-06-15 | Verified |
 | CUS-023 | Kemi Adebayo | Standard | Lagos | 2023-06-15 | Verified |
 
-**Bonus — all customers with their transaction count (0 for dormant):**
+**Bonus: all customers with their transaction count (0 for dormant):**
 
 ```sql
 SELECT
@@ -298,26 +298,26 @@ success team before they churn permanently.
 
 ## Key Lessons Learned
 
-1. **Always alias your tables in JOINs** — `FROM transactions AS t INNER JOIN customers AS c`
+1. **Always alias your tables in JOINs**: `FROM transactions AS t INNER JOIN customers AS c`
    is mandatory when both tables share column names like `user_id`. Without prefixes
    like `t.user_id` and `c.user_id`, SQL throws an "ambiguous column" error.
 
-2. **Check your match rate with LEFT JOIN before committing to INNER JOIN** —
+2. **Check your match rate with LEFT JOIN before committing to INNER JOIN**:
    running the verification query first showed 100% match rate, confirming INNER JOIN
    was safe. If match rate had been 80%, INNER JOIN would silently drop 20% of rows.
 
-3. **GROUP BY must include all non-aggregated SELECT columns** — every column in
+3. **GROUP BY must include all non-aggregated SELECT columns** every column in
    SELECT without COUNT/SUM/AVG/MAX/MIN must appear in GROUP BY, or the query errors.
 
-4. **CASE WHEN is SQL's IF statement** — `COUNT(CASE WHEN status = 'Success' THEN 1 END)`
+4. **CASE WHEN is SQL's IF statement**: `COUNT(CASE WHEN status = 'Success' THEN 1 END)`
    counts only the rows matching the condition. Essential for conditional aggregation
    within GROUP BY without writing separate queries.
 
-5. **Swapping table order changes which side is "kept"** — in Query 5, putting
+5. **Swapping table order changes which side is "kept"** in Query 5, putting
    `customers` in FROM and `transactions` in LEFT JOIN meant all customers were
    preserved, not all transactions. The anti-join pattern then isolates the non-matches.
 
-6. **Unexpected findings are the most valuable** — the KYC result (Pending customers
+6. **Unexpected findings are the most valuable**: the KYC result (Pending customers
    outperforming Verified) was not the expected answer. In real analytics, surprises
    that contradict assumptions are often the most actionable findings.
 
@@ -342,19 +342,5 @@ day04-sql-joins/
     ├── query4_result.png               ← 0 rows = clean referential integrity
     └── query5_result.png
 ```
-
----
-
-## Day 3 vs Day 4 — What JOINs Unlocked
-
-| Day 3 question (single table) | Day 4 question (with JOIN) |
-|---|---|
-| Which channel had most failures? | Which account tier has the worst failure rate? |
-| Volume by region | Volume by customer income band |
-| Transaction type breakdown | Transaction type breakdown per tier |
-| Who made the largest transaction? | What tier/KYC status is our biggest spender? |
-| — | Which customers are dormant this month? |
-
-JOINs transform transaction data into customer intelligence.
 
 ---
