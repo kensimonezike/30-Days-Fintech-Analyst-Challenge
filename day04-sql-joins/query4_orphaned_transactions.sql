@@ -1,7 +1,7 @@
 -- Query 4: Find transactions with NO matching customer record
 -- Business question: How many transactions cannot be linked to a known customer?
+
 -- JOIN type: LEFT JOIN + WHERE IS NULL (anti-join pattern)
--- PalmPay Analytics | Day 4 | January 2024
 
 SELECT
     t.transaction_id,
@@ -21,9 +21,9 @@ ORDER BY t.transaction_date;
 -- Result: 0 rows returned
 --
 -- Finding: All 50 transactions in January have a matching customer record.
--- This is a positive data quality result — there are no orphaned transactions.
+-- This is a positive data quality result; there are no orphaned transactions.
 -- Zero orphaned transactions = clean referential integrity between the two tables.
--- In a production environment this check should run daily as a data quality monitor.
+-- In a production environment, this check should run daily as a data quality monitor.
 
 -- Verification query — confirm match rate:
 SELECT
