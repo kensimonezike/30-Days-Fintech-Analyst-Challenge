@@ -137,7 +137,7 @@ included in the monthly high-value transaction review log.
 
 ---
 
-## Query 3 — ARPU and Transaction Velocity by Account Tier
+## Query 3. ARPU and Transaction Velocity by Account Tier
 
 **Business question:** Which account tier delivers the most revenue per user?
 **New concept:** CTE (`WITH` clause) + ARPU and velocity KPIs.
@@ -146,12 +146,19 @@ included in the monthly high-value transaction review log.
 WITH tier_stats AS (
     SELECT
         c.account_tier,
-        COUNT(t.transaction_id)                                     AS total_transactions,
-        COUNT(DISTINCT t.user_id)                                   AS active_users,
-        SUM(CASE WHEN t.status = 'Success'
-             AND t.amount_ngn > 0 THEN t.amount_ngn ELSE 0 END)    AS successful_volume
+        COUNT(t.transaction_id) AS total_transactions,
+        COUNT(DISTINCT t.user_id) AS active_users,
+        SUM(
+            CASE
+                WHEN t.status = 'Success'
+                     AND t.amount_ngn > 0
+                THEN t.amount_ngn
+                ELSE 0
+            END
+        ) AS successful_volume
     FROM transactions t
-    INNER JOIN customers c ON t.user_id = c.user_id
+    INNER JOIN customers c
+        ON t.user_id = c.user_id
     GROUP BY c.account_tier
 )
 SELECT
@@ -159,8 +166,14 @@ SELECT
     total_transactions,
     active_users,
     successful_volume,
-    ROUND(successful_volume / NULLIF(active_users, 0), 2)           AS arpu_ngn,
-    ROUND(total_transactions::numeric / NULLIF(active_users, 0), 2) AS txn_velocity
+    ROUND(
+        (successful_volume / NULLIF(active_users, 0))::numeric,
+        2
+    ) AS arpu_ngn,
+    ROUND(
+        total_transactions::numeric / NULLIF(active_users, 0),
+        2
+    ) AS txn_velocity
 FROM tier_stats
 ORDER BY arpu_ngn DESC;
 ```
@@ -169,8 +182,8 @@ ORDER BY arpu_ngn DESC;
 
 | account_tier | total_transactions | active_users | successful_volume | arpu_ngn | txn_velocity |
 |---|---|---|---|---|---|
-| VIP | 8 | 3 | 928,290.00 | 309,430.00 | 2.67 |
-| Standard | 32 | 13 | 3,517,280.00 | 270,560.00 | 2.46 |
+| VIP | 14 | 7 | 1,585,860.00 | 226,551.43 | 2.00 |
+| Standard | 35 | 14 | 3,416,940.00 | 244,067.14 | 2.50 |
 | Premium | 10 | 6 | 957,270.00 | 159,545.00 | 1.67 |
 
 > 💡 **Unexpected finding:** Premium tier has the LOWEST ARPU at ₦159,545 —
