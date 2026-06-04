@@ -1,18 +1,14 @@
-# Day 05 — Advanced SQL: HAVING, Subqueries, CTEs + Fintech KPIs
+# Day 05. Advanced SQL: HAVING, Subqueries, CTEs + Fintech KPIs
 
-**Date completed:** [DD-MMM-2024]
 **Tool:** PostgreSQL + DBeaver
-**Time taken:** [X] minutes
-**Score:** [X/100]
-**Phase:** 1 — Foundations
 
 ---
 
 ## Business Scenario
 
 My manager asked me to go beyond basic GROUP BY queries and start calculating
-actual business KPIs directly in SQL. Today I learned three new SQL concepts —
-HAVING, Subqueries, and CTEs — and used them to build a complete fintech KPI
+actual business KPIs directly in SQL. Today I learned three new SQL concepts:
+HAVING, Subqueries, and CTEs, and used them to build a complete fintech KPI
 report for January 2024 covering success rate, failure rate, ATV, ARPU, and
 transaction velocity.
 
@@ -22,8 +18,8 @@ transaction velocity.
 
 | Concept | Plain English | When to use it |
 |---|---|---|
-| `HAVING` | Filters entire groups AFTER aggregation — like WHERE but for GROUP BY results | When your filter condition contains COUNT, SUM, AVG, MAX, or MIN |
-| **Subquery** | A query nested inside another query — the inner query runs first | When you need to compare each row against a calculated value like AVG |
+| `HAVING` | Filters entire groups AFTER aggregation, like WHERE but for GROUP BY results | When your filter condition contains COUNT, SUM, AVG, MAX, or MIN |
+| **Subquery** | A query nested inside another query. The inner query runs first | When you need to compare each row against a calculated value like AVG |
 | **CTE** (`WITH`) | A named temporary result defined at the top, referenced like a table below | When logic has multiple steps or you need to reuse a calculated result |
 | `NULLIF(x, 0)` | Returns NULL instead of 0, preventing divide-by-zero crashes | Any time you divide by a COUNT or SUM that could theoretically be zero |
 | `::numeric` cast | Forces integer values to produce decimal division results | Dividing two integers where you need a decimal answer (e.g. velocity = 5/2 = 2.5 not 2) |
