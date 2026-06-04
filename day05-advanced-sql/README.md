@@ -38,7 +38,7 @@ transaction velocity.
 
 ---
 
-## Query 1 — Channels Where Failure Rate Exceeds 15%
+## Query 1. Channels Where Failure Rate Exceeds 15%
 
 **Business question:** Which channels have a reliability problem requiring engineering escalation?
 **New concept:** `HAVING` — filtering groups after aggregation.
@@ -46,12 +46,12 @@ transaction velocity.
 ```sql
 SELECT
     channel,
-    COUNT(*)                                                        AS total_transactions,
+    COUNT(*)                                                       AS total_transactions,
     COUNT(CASE WHEN status = 'Failed' THEN 1 END)                  AS failed_count,
     ROUND(
         COUNT(CASE WHEN status = 'Failed' THEN 1 END) * 100.0
         / COUNT(*), 1
-    )                                                               AS failure_rate_pct
+    )                                                              AS failure_rate_pct
 FROM transactions
 GROUP BY channel
 HAVING
@@ -65,40 +65,49 @@ ORDER BY failure_rate_pct DESC;
 | channel | total_transactions | failed_count | failure_rate_pct |
 |---|---|---|---|
 | Web | 16 | 5 | 31.2% |
-| App | 10 | 2 | 20.0% |
 
-> 💡 **Key learning:** USSD (12.5%) and Agent (0.0%) did NOT appear — HAVING excluded them
-> because their failure rates were below the 15% threshold. This is what HAVING does:
+> 💡 **Key learning:** App (10.0%), USSD (12.5%), and Agent (0.0%) did NOT appear because HAVING excluded them.
+> Their failure rates were below the 15% threshold. This is what HAVING does:
 > it removes entire groups that fail the condition. WHERE cannot do this because the
 > failure rate does not exist as a value until AFTER GROUP BY runs.
 >
-> ⚠️ You cannot use the alias `failure_rate_pct` in the HAVING clause.
-> PostgreSQL evaluates HAVING before SELECT aliases are assigned — you must
+> NOTE: You cannot use the alias `failure_rate_pct` in the HAVING clause.
+> PostgreSQL evaluates HAVING before SELECT aliases are assigned, you must
 > repeat the full expression.
 
-**Business finding:** 2 of 4 channels exceeded the 15% failure rate threshold in January.
-Web was the worst at 31.2% — nearly 1 in 3 transactions on Web failed.
-App at 20.0% is also critical. Engineering should prioritise Web channel infrastructure
-before the February growth campaign, as it is currently losing approximately
-₦750,000 in failed transaction volume per month.
+**Business finding:** 1 of 4 channels exceeded the 15% failure rate threshold in January.
+Web at 31.2%, nearly 1 in 3 transactions on Web failed.
 
 ---
 
-## Query 2 — Transactions Above the Average Value (High-Value Flag)
+## Query 2. Transactions Above the Average Value (High-Value Flag)
 
 **Business question:** Which transactions exceeded the January average and should be flagged for fraud review?
 **New concept:** Subquery inside `WHERE`.
 
 ```sql
 SELECT
-    transaction_id, user_id, transaction_date,
-    transaction_type, amount_ngn, status,
-    ROUND(amount_ngn - (
-        SELECT AVG(amount_ngn) FROM transactions WHERE amount_ngn > 0
-    ), 2)                                   AS above_avg_by_ngn
+    transaction_id,
+    user_id,
+    transaction_date,
+    transaction_type,
+    amount_ngn,
+    status,
+    ROUND(
+        (
+            amount_ngn - (
+                SELECT AVG(amount_ngn)
+                FROM transactions
+                WHERE amount_ngn > 0
+            )
+        )::numeric,
+        2
+    ) AS above_avg_by_ngn
 FROM transactions
 WHERE amount_ngn > (
-    SELECT AVG(amount_ngn) FROM transactions WHERE amount_ngn > 0
+    SELECT AVG(amount_ngn)
+    FROM transactions
+    WHERE amount_ngn > 0
 )
 ORDER BY amount_ngn DESC;
 ```
@@ -117,12 +126,12 @@ ORDER BY amount_ngn DESC;
 | TXN-0039 | 459,000.00 | Pending | Bill Payment | ₦316,610 |
 | TXN-0003 | 441,650.00 | Success | Deposit | ₦299,260 |
 
-> ⚠️ **TXN-0039 is flagged as both high-value AND Pending** — a combination that
+> **TXN-0039 is flagged as both high-value AND Pending**, a combination that
 > warrants immediate investigation. A large Pending transaction could indicate
 > a processing delay, a routing failure, or a held transaction pending fraud review.
 
 **Business finding:** 15 transactions (30%) exceeded the January average of ₦142,390.
-The largest single transaction (TXN-0033 at ₦473,150) was 3.3x the average —
+The largest single transaction (TXN-0033 at ₦473,150) was 3.3x the average,
 a standard AML flag threshold at most fintech companies. All 15 should be
 included in the monthly high-value transaction review log.
 
