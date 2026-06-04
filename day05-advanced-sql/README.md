@@ -184,15 +184,18 @@ ORDER BY arpu_ngn DESC;
 |---|---|---|---|---|---|
 | VIP | 14 | 7 | 1,585,860.00 | 226,551.43 | 2.00 |
 | Standard | 35 | 14 | 3,416,940.00 | 244,067.14 | 2.50 |
-| Premium | 10 | 6 | 957,270.00 | 159,545.00 | 1.67 |
+| Premium | 1 | 1 | 386,320.00 | 386,320.00 | 1.00 |
 
-> 💡 **Unexpected finding:** Premium tier has the LOWEST ARPU at ₦159,545 —
-> 48% below VIP and 41% below Standard. Premium customers also have the lowest
-> transaction velocity (1.67 vs 2.67 for VIP). This is counter-intuitive:
-> Premium should sit between Standard and VIP but it is underperforming both.
-> Possible explanations: Premium customers are misclassified, the Premium product
-> lacks features that drive engagement, or Premium customers use competitor platforms
-> for high-value transactions.
+> **Unexpected finding:** Premium tier has the HIGHEST ARPU at ₦386,320.00,
+> 70.5% higher than VIP and 58.3% higher than Standard. However,
+> Premium customers also have the lowest transaction velocity (1.00 vs
+> 2.00 for VIP and 2.50 for Standard). This result should be interpreted
+> with caution because the Premium tier contains only one active user and
+> one transaction. While the customer generated the highest value per
+> user, the sample size is too small to determine whether Premium
+> customers are genuinely more valuable or if this is an outlier.
+> Additional Premium customer activity is needed before making product,
+> pricing, or engagement decisions based on this segment.
 
 **Business finding:** VIP customers generate the highest ARPU at ₦309,430/user —
 13% more than Standard and 94% more than Premium. However, Standard tier drives
@@ -202,7 +205,7 @@ three tiers — this should not be the case in a well-designed tier system.
 
 ---
 
-## Query 4 — Power Users (3+ Transactions in January)
+## Query 4. Power Users (3+ Transactions in January)
 
 **Business question:** Who are the most engaged customers — our retention priority list?
 **Concept:** `HAVING` on user-level `GROUP BY`.
@@ -212,7 +215,7 @@ SELECT
     t.user_id, c.full_name, c.account_tier, c.city,
     COUNT(t.transaction_id)             AS transaction_count,
     SUM(t.amount_ngn)                   AS total_volume_ngn,
-    ROUND(AVG(t.amount_ngn), 2)         AS avg_transaction_ngn
+    ROUND(AVG(t.amount_ngn)::numeric, 2)         AS avg_transaction_ngn
 FROM transactions t
 INNER JOIN customers c ON t.user_id = c.user_id
 GROUP BY t.user_id, c.full_name, c.account_tier, c.city
@@ -222,29 +225,29 @@ ORDER BY transaction_count DESC, total_volume_ngn DESC;
 
 **Result (10 power users):**
 
-| full_name | account_tier | city | txn_count | total_volume | avg_txn |
-|---|---|---|---|---|---|
-| Babatunde Oladele | Standard | Abuja | 5 | 993,820.00 | 198,764.00 |
-| Adaeze Okonkwo | Standard | Abuja | 4 | 101,210.00 | 25,302.50 |
-| Uche Nnamdi | VIP | Kano | 4 | 376,950.00 | 94,237.50 |
-| Zainab Umar | VIP | Ibadan | 4 | 134,950.00 | 33,737.50 |
-| Obiageli Nwosu | Premium | Ibadan | 3 | 476,310.00 | 158,770.00 |
-| Chukwudi Eze | Standard | Ibadan | 3 | 859,820.00 | 286,606.67 |
-| Taiwo Adekoya | Premium | Port Harcourt | 3 | 224,080.00 | 74,693.33 |
-| Blessing Eze | Standard | Lagos | 3 | 495,420.00 | 165,140.00 |
-| Halima Yusuf | Standard | Port Harcourt | 3 | 801,230.00 | 267,076.67 |
-| Emeka Okafor | Standard | Lagos | 3 | 479,170.00 | 159,723.33 |
+| User ID   | Name               | Tier     | City          | Metric 1 | Metric 2    | Metric 3     |
+|-----------|--------------------|----------|---------------|----------|-------------|--------------|
+| USR-2679  | Babatunde Oladele  | Standard | Abuja         | 5        | 993,820.0    | 198,764.00    |
+| USR-9935  | Uche Nnamdi        | VIP      | Kano          | 4        | 376,950.0    | 942,37.50     |
+| USR-5506  | Zainab Umar        | Standard | Ibadan        | 4        | 134,950.0    | 337,37.50     |
+| USR-1106  | Adaeze Okonkwo     | Standard | Abuja         | 4        | 101,210.0    | 253,02.50     |
+| USR-2424  | Chukwudi Eze       | Standard | Ibadan        | 3        | 859,820.0    | 286,606.67    |
+| USR-8359  | Halima Yusuf       | Standard | Port Harcourt | 3        | 801,230.0    | 267,076.67    |
+| USR-7912  | Blessing Eze       | Standard | Lagos         | 3        | 495,420.0    | 165,140.00    |
+| USR-1409  | Emeka Okafor       | Standard | Lagos         | 3        | 479,170.0    | 159,723.33    |
+| USR-3615  | Obiageli Nwosu     | Standard | Ibadan        | 3        | 476,310.0    | 158,770.00    |
+| USR-7924  | Taiwo Adekoya      | VIP      | Port Harcourt | 3        | 224,080.0    | 74,693.33     |
 
-**Business finding:** 10 of 22 active users (45%) are power users with 3+ transactions —
+**Business finding:** 10 of 22 active users (45%) are power users with 3+ transactions,
 a strong engagement signal for a 31-day period. Babatunde Oladele leads with 5 transactions
-and ₦993,820 in volume on a Standard account — the strongest tier upgrade candidate.
+and ₦993,820 in volume on a Standard account, the strongest tier upgrade candidate.
 7 of the 10 power users are Standard tier, reinforcing the earlier finding that
 Standard tier labels underrepresent actual customer value.
 These 10 customers should receive priority customer success attention and loyalty rewards.
 
 ---
 
-## Query 5 — Complete Channel KPI Report
+## Query 5. Complete Channel KPI Report
 
 **Business question:** Full reliability breakdown per channel with all metrics.
 **Concept:** CTE + multiple KPIs + `NULLIF` for safe division.
@@ -253,127 +256,121 @@ These 10 customers should receive priority customer success attention and loyalt
 WITH channel_metrics AS (
     SELECT
         channel,
-        COUNT(*)                                              AS total_txns,
-        COUNT(CASE WHEN status = 'Success' THEN 1 END)       AS success_count,
-        COUNT(CASE WHEN status = 'Failed'  THEN 1 END)       AS failed_count,
-        COUNT(CASE WHEN status = 'Pending' THEN 1 END)       AS pending_count,
-        SUM(CASE WHEN status = 'Success'
-             AND amount_ngn > 0 THEN amount_ngn ELSE 0 END)  AS successful_volume
+        COUNT(*) AS total_txns,
+        -- Using Postgres FILTER clause for cleaner code
+        COUNT(*) FILTER (WHERE status = 'Success') AS success_count,
+        COUNT(*) FILTER (WHERE status = 'Failed')  AS failed_count,
+        COUNT(*) FILTER (WHERE status = 'Pending') AS pending_count,
+        -- Coalesce ensures we get 0 instead of NULL if there are no successful txns
+        COALESCE(SUM(amount_ngn) FILTER (WHERE status = 'Success' AND amount_ngn > 0), 0) AS successful_volume
     FROM transactions
     GROUP BY channel
 )
 SELECT
-    channel, total_txns, success_count, failed_count, pending_count,
-    ROUND(success_count * 100.0 / total_txns, 1)             AS success_rate_pct,
-    ROUND(failed_count  * 100.0 / total_txns, 1)             AS failure_rate_pct,
+    channel, 
+    total_txns, 
+    success_count, 
+    failed_count, 
+    pending_count,
+    ROUND((success_count::numeric / NULLIF(total_txns, 0)) * 100, 1) AS success_rate_pct,
+    ROUND((failed_count::numeric  / NULLIF(total_txns, 0)) * 100, 1) AS failure_rate_pct,
     successful_volume,
-    ROUND(successful_volume / NULLIF(success_count, 0), 2)   AS avg_success_value_ngn
+    ROUND(successful_volume::numeric / NULLIF(success_count, 0), 2)  AS avg_success_value_ngn
 FROM channel_metrics
 ORDER BY failure_rate_pct DESC;
 ```
 
 **Result:**
 
-| channel | total | success | failed | pending | succ% | fail% | volume | avg_value |
-|---|---|---|---|---|---|---|---|---|
-| Web | 16 | 10 | 5 | 1 | 62.5% | 31.2% | 1,499,600 | 149,960 |
-| App | 10 | 7 | 2 | 1 | 70.0% | 20.0% | 893,870 | 127,696 |
-| USSD | 16 | 13 | 2 | 1 | 81.2% | 12.5% | 2,097,850 | 161,373 |
-| Agent | 8 | 6 | 0 | 2 | 75.0% | 0.0% | 911,520 | 151,920 |
+| channel | total_txns | success_count | failed_count | pending_count | success_rate_pct | failure_rate_pct | successful_volume | avg_success_value_ngn |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Web | 16 | 10 | 5 | 1 | 62.5 | 31.3 | 1499600.0 | 149960.00 |
+| USSD | 16 | 12 | 2 | 1 | 75.0 | 12.5 | 2093190.0 | 174432.50 |
+| App | 10 | 6 | 1 | 1 | 60.0 | 10.0 | 886770.0 | 147795.00 |
+| Agent | 8 | 5 | 0 | 1 | 62.5 | 0.0 | 909560.0 | 181912.00 |
 
-**Business finding:** Engineering escalation priority: Web → App → USSD → Agent.
-Despite USSD handling the most volume (₦2,097,850) it is the third-most reliable channel.
-Web handles ₦1.5M in volume but loses 31.2% of transactions — approximately
-₦467,000 in failed transaction volume every month that generates zero revenue.
-Agent is the reliability benchmark with zero failures and should be studied
-to understand what makes it the most resilient channel.
+**Business finding:** Engineering escalation priority: Web → App → USSD → Agent. Despite USSD handling the most volume (₦2,093,190.00) it is the third-most reliable channel. Web handles ₦1.5M in volume but loses 31.3% of transactions, approximately ₦749,800.00 in failed transaction volume every month that generates zero revenue. Agent is the reliability benchmark with zero failures and should be studied to understand what makes it the most resilient channel.
 
 ---
 
-## Query 6 — Executive KPI Summary (All 5 KPIs)
+## Query 6. Executive KPI Summary (All 5 KPIs)
 
 **Business question:** What is the complete January 2024 performance picture in one view?
-**Concept:** Chained CTEs — each CTE builds on the previous one.
+**Concept:** Chained CTEs: each CTE builds on the previous one.
 
 ```sql
-WITH
-clean_txns AS (
-    SELECT * FROM transactions WHERE amount_ngn > 0
+WITH clean_txns AS (
+    SELECT * 
+    FROM transactions 
+    WHERE amount_ngn > 0
 ),
 kpi_base AS (
     SELECT
-        COUNT(*)                                                    AS total_transactions,
-        COUNT(DISTINCT user_id)                                     AS active_users,
-        COUNT(CASE WHEN status = 'Success' THEN 1 END)             AS successful_txns,
-        COUNT(CASE WHEN status = 'Failed'  THEN 1 END)             AS failed_txns,
+        COUNT(*) AS total_transactions,
+        COUNT(DISTINCT user_id) AS active_users,
+        COUNT(CASE WHEN status = 'Success' THEN 1 END) AS successful_txns,
+        COUNT(CASE WHEN status = 'Failed' THEN 1 END) AS failed_txns,
         SUM(CASE WHEN status = 'Success' THEN amount_ngn ELSE 0 END) AS successful_volume
     FROM clean_txns
 )
+
 SELECT
-    'January 2024'                                                  AS period,
+    'January 2024' AS period,
     total_transactions,
     active_users,
-    ROUND(successful_txns * 100.0 / NULLIF(total_transactions, 0), 1) AS success_rate_pct,
-    ROUND(failed_txns * 100.0 / NULLIF(total_transactions, 0), 1)     AS failure_rate_pct,
-    ROUND(successful_volume / NULLIF(successful_txns, 0), 2)           AS avg_txn_value_ngn,
-    ROUND(successful_volume / NULLIF(active_users, 0), 2)              AS arpu_ngn,
-    ROUND(total_transactions::numeric / NULLIF(active_users, 0), 2)    AS txn_velocity,
-    successful_volume                                                   AS total_volume_ngn
+
+    ROUND((successful_txns * 100::numeric / NULLIF(total_transactions, 0))::numeric, 1) AS success_rate_pct,
+
+    ROUND((failed_txns * 100::numeric / NULLIF(total_transactions, 0))::numeric, 1) AS failure_rate_pct,
+
+    ROUND((successful_volume / NULLIF(successful_txns, 0))::numeric, 2) AS avg_txn_value_ngn,
+
+    ROUND((successful_volume / NULLIF(active_users, 0))::numeric, 2) AS arpu_ngn,
+
+    ROUND((total_transactions::numeric / NULLIF(active_users, 0))::numeric, 2) AS txn_velocity,
+
+    successful_volume AS total_volume_ngn
 FROM kpi_base;
 ```
 
 **Result — January 2024 Executive KPI Card (1 row):**
 
-| KPI | Value | Benchmark | Status |
-|---|---|---|---|
-| Total transactions | 50 | — | Baseline |
-| Active users | 22 | — | Baseline |
-| **Success rate** | **72.0%** | >95% | 🔴 Critical |
-| **Failure rate** | **18.0%** | <5% | 🔴 Critical |
-| **Avg Transaction Value** | **₦150,078.89** | — | Baseline for Feb |
-| **ARPU** | **₦245,583.64** | — | Baseline for Feb |
-| **Transaction velocity** | **2.27 txns/user** | — | Baseline for Feb |
-| Total clean volume | ₦5,402,840.00 | — | Reference |
+| Period        | total_transactions | active_users | success_rate_pct | failure_rate_pct | avg_txn_value_ngn | arpu_ngn     | txn_velocity | total_volume_ngn |
+|---------------|-------------------|--------------|------------------|------------------|-------------------|--------------|----------------------|------------------|
+| January 2024  | 48                | 21           | 66.7             | 16.7             | 168,410.00        | 256,624.76   | 2.29                 | 5,389,120.00     |
 
 > 🔴 **Critical flags:** Success rate of 72.0% is well below the 95% industry benchmark.
 > Failure rate of 18.0% exceeds the 5% threshold significantly.
 > These are the top two priorities for the engineering and product teams in February.
 
-**Business finding:** January 2024 KPI summary — PalmPay processed 50 transactions
-from 22 active users, generating ₦5,402,840 in clean volume. The 72.0% success rate
-and 18.0% failure rate are below acceptable industry benchmarks and require immediate
-investigation. ARPU of ₦245,584 and velocity of 2.27 transactions/user establish
-the January baseline that February performance will be measured against.
-The single most important action for February is reducing the Web channel failure
-rate (currently 31.2%), which alone could recover an estimated ₦470,000 in
-currently-lost monthly transaction volume.
+**Business finding:** January 2024 KPI summary shows PalmPay processed 48 transactions from 21 active users, generating ₦5,389,120 in total volume. The 66.7% success rate and 16.7% failure rate indicate moderate transaction reliability, with a significant portion of transactions still not completing successfully. An ARPU of ₦256,624.76 and transaction velocity of 2.29 transactions per user suggest moderate but concentrated user engagement within the active base. This performance establishes the January baseline against which subsequent monthly improvements in reliability, user engagement, and revenue efficiency will be measured.
 
 ---
 
 ## Key Lessons Learned
 
-1. **HAVING vs WHERE — the most common beginner mistake** — WHERE filters rows before
+1. **HAVING vs WHERE, the most common beginner mistake**: WHERE filters rows before
    grouping, HAVING filters groups after grouping. If your condition uses COUNT/SUM/AVG,
    it belongs in HAVING. If it uses a column value directly, it belongs in WHERE.
    You can use both in the same query.
 
-2. **Never use alias names in HAVING** — PostgreSQL evaluates HAVING before SELECT
+2. **Never use alias names in HAVING**: PostgreSQL evaluates HAVING before SELECT
    aliases are assigned. `HAVING failure_rate_pct > 15` errors even though the
    alias is defined in the same query. Repeat the full expression.
 
-3. **Always protect divisions with NULLIF** — `ROUND(volume / NULLIF(count, 0), 2)`
+3. **Always protect divisions with NULLIF**: `ROUND(volume / NULLIF(count, 0), 2)`
    returns NULL instead of crashing when count is zero. In production dashboards,
    a divide-by-zero error with no NULLIF protection will break your entire report.
 
-4. **CTEs make complex queries readable and debuggable** — breaking a 3-step
+4. **CTEs make complex queries readable and debuggable**: breaking a 3-step
    calculation into 3 named CTEs means you can test each step independently.
    A nested subquery 4 levels deep is impossible to debug at 9pm before a board meeting.
 
-5. **Integer division silently truncates in PostgreSQL** — `5 / 2 = 2`, not `2.5`.
+5. **Integer division silently truncates in PostgreSQL**: `5 / 2 = 2`, not `2.5`.
    Always cast to numeric when dividing counts: `count::numeric / other_count`
    or multiply by `1.0`. This has corrupted real analyst reports that were never caught.
 
-6. **The 72% success rate is the headline finding** — every other metric is context.
+6. **The 72% success rate is the headline finding**: every other metric is context.
    When presenting this KPI card to a non-technical audience, lead with the success
    rate because it is the most universally understood measure of platform reliability.
 
@@ -389,29 +386,14 @@ day05-advanced-sql/
 ├── query3_arpu_velocity_by_tier.sql
 ├── query4_power_users.sql
 ├── query5_channel_kpi_full.sql
-├── query6_executive_kpi_summary.sql              ← save this as monthly_kpi_report.sql
+├── query6_executive_kpi_summary.sql             
 └── screenshots/
     ├── query1_result.png
     ├── query2_result.png
     ├── query3_result.png
     ├── query4_result.png
     ├── query5_result.png
-    └── query6_kpi_card.png                       ← most important screenshot for portfolio
+    └── query6_kpi_card.png                      
 ```
 
 ---
-
-## Phase 1 SQL Summary (Days 3–5)
-
-| Day | Concepts | Key output |
-|---|---|---|
-| Day 3 | SELECT, FROM, WHERE, GROUP BY, ORDER BY, LIMIT | Basic transaction analysis — 5 queries |
-| Day 4 | INNER JOIN, LEFT JOIN, anti-join, CASE WHEN | Customer-linked analysis — 5 queries |
-| Day 5 | HAVING, subqueries, CTEs, NULLIF, KPIs | Full KPI report — 6 queries |
-
-By the end of Day 5, I can write any query that a fintech analyst encounters
-in their first 6 months on the job.
-
----
-
-*Part of the [30-Day Fintech Data Analyst Bootcamp](../README.md) — PalmPay Analytics Case Study*
