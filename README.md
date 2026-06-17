@@ -16,7 +16,7 @@ I built this project to develop real, job-ready analytics skills by working thro
 
 ## 🎯 What This Project Is
 
-This is not a course certificate. It is 30 days of real work output.
+This is 30 days of real work output.
 
 Each day, I was given a business scenario, a dataset, and a question my manager needed answered. I had to profile the data, clean it, analyse it, and communicate findings in plain business language, the same workflow used by analysts at fintech companies across Africa and globally.
 
@@ -69,7 +69,7 @@ Each day, I was given a business scenario, a dataset, and a question my manager 
 | [Day 02](./day02-data-cleaning/) | Data Cleaning + First Pivot Analysis | Excel formulas, pivot tables | ✅ Complete |
 | [Day 03](./day03-sql-intro/) | SQL Introduction — First Queries on Transaction Data | SELECT, WHERE, GROUP BY | 🔄 In Progress |
 | [Day 04](./day04-sql-joins/) | SQL Joins — Linking Customers to Transactions | INNER JOIN, LEFT JOIN | ⏳ Upcoming |
-| [Day 05](./day05-fintech-kpis/) | Fintech KPI Design — Building a KPI Tracker | KPI design, AVERAGEIF, COUNTIFS | ⏳ Upcoming |
+| [Day 05](./day05-advanced-sql/) | Fintech KPI Design — Building a KPI Tracker | KPI design, AVERAGEIF, COUNTIFS | ⏳ Upcoming |
 | [Day 06](./day06-excel-dashboard/) | Excel Dashboard v1 — Channel Performance Report | Dashboard layout, charts | ⏳ Upcoming |
 | [Day 07](./day07-mini-project-1/) | Mini Project 1 — Full January Analysis Report | End-to-end Excel analysis | ⏳ Upcoming |
 
