@@ -1,11 +1,6 @@
-# Day 06 — Python for Data Analysis: Pandas, NumPy + First EDA
+# Day 06. Python for Data Analysis: Pandas, NumPy + First EDA
 
-**Date completed:** [DD-MMM-2024]
-**Tool:** Python 3.11 + Jupyter Notebook
-**Time taken:** [X] minutes
-**Score:** [X/100]
-**Phase:** 1 — Foundations
-
+**Tool:** Python 3.14.6 + Jupyter Notebook
 ---
 
 ## Business Scenario
@@ -22,7 +17,7 @@ with 5 charts and business findings.
 
 | Tool | Version |
 |---|---|
-| Python | 3.11+ |
+| Python | 3.14.6 |
 | pandas | Latest |
 | numpy | Latest |
 | matplotlib | Latest |
@@ -33,21 +28,23 @@ with 5 charts and business findings.
 **Install command:**
 ```bash
 pip install pandas numpy matplotlib seaborn jupyter openpyxl
+or
+pip3 install pandas numpy matplotlib seaborn jupyter openpyxl
 ```
 
 ---
 
-## Python vs Excel — Same Tasks Compared
+## Python vs Excel. Same Tasks Compared
 
 | Task | Excel (Days 1-2) | Python (Day 6) | Winner |
 |---|---|---|---|
-| Data profile (8 columns) | 25 min — manual formulas | 3 cells, ~10 seconds | Python |
-| Count nulls per column | `=COUNTBLANK()` per column | `df.isnull().sum()` — one line | Python |
-| Unique value count | `=SUMPRODUCT(1/COUNTIF(...))` | `df.nunique()` — one line | Python |
-| Fix status casing | `=PROPER(F2)` drag to F51 | `df['status'].str.title()` — one line | Python |
-| Replace negatives with 0 | `=IF(E2<0,0,E2)` drag to K51 | `df['amount'].clip(lower=0)` — one line | Python |
+| Data profile (8 columns) | 25 min - manual formulas | 3 cells, ~10 seconds | Python |
+| Count nulls per column | `=COUNTBLANK()` per column | `df.isnull().sum()` - one line | Python |
+| Unique value count | `=SUMPRODUCT(1/COUNTIF(...))` | `df.nunique()` - one line | Python |
+| Fix status casing | `=PROPER(F2)` drag to F51 | `df['status'].str.title()` - one line | Python |
+| Replace negatives with 0 | `=IF(E2<0,0,E2)` drag to K51 | `df['amount'].clip(lower=0)` - one line | Python |
 | Filter rows | Excel filter dropdown | `df[df['status'] == 'Success']` | Python |
-| Group + aggregate | Pivot table — drag and drop | `df.groupby().agg()` | Tie |
+| Group + aggregate | Pivot table - drag and drop | `df.groupby().agg()` | Tie |
 | Scalability | Breaks at ~1M rows | Handles 100M+ rows | Python |
 
 ---
@@ -59,14 +56,14 @@ The notebook `palmpay_day6_eda.ipynb` contains 9 cells:
 | Cell | Purpose |
 |---|---|
 | Cell 1 | Import libraries, load Excel file |
-| Cell 2 | Data profile — df.info(), df.describe() |
+| Cell 2 | Data profile - df.info(), df.describe() |
 | Cell 3 | Missing values, unique counts, duplicates |
-| Cell 4 | Clean all 5 issues — df_clean |
-| Cell 5 | Task 1 — Status breakdown + bar chart |
-| Cell 6 | Task 2 — Volume by region + horizontal bar chart |
-| Cell 7 | Task 3 — Daily trend + line chart |
-| Cell 8 | Task 4 — Channel failure rate + grouped bar chart |
-| Cell 9 | Task 5 — Amount distribution + histogram + boxplot |
+| Cell 4 | Clean all 5 issues - df_clean |
+| Cell 5 | Task 1 - Status breakdown + bar chart |
+| Cell 6 | Task 2 - Volume by region + horizontal bar chart |
+| Cell 7 | Task 3 - Daily trend + line chart |
+| Cell 8 | Task 4 - Channel failure rate + grouped bar chart |
+| Cell 9 | Task 5 - Amount distribution + histogram + boxplot |
 
 ---
 
@@ -75,28 +72,41 @@ The notebook `palmpay_day6_eda.ipynb` contains 9 cells:
 All 5 data quality issues from Day 1 fixed in Python:
 
 ```python
-df_clean = df.copy()  # NEVER modify the original
+# Start with a full copy — never modify the original
+df_clean = df.copy()
 
-# Fix 1: Standardise status casing — Python IS case-sensitive
+# FIX 1: Standardise status casing — Python IS case-sensitive unlike Excel
 df_clean['status'] = df_clean['status'].str.strip().str.title()
 
-# Fix 2: Replace negative amounts with 0
+# FIX 2: Replace negative amounts with 0
 df_clean['amount_ngn'] = df_clean['amount_ngn'].clip(lower=0)
 
-# Fix 3: Correct 2004 date outlier to 2024
-df_clean['transaction_date'] = pd.to_datetime(df_clean['transaction_date'])
+# FIX 3: Convert to datetime safely + correct year outliers
+df_clean['transaction_date'] = pd.to_datetime(df_clean['transaction_date'], errors='coerce')
+
 mask = df_clean['transaction_date'].dt.year != 2024
-df_clean.loc[mask, 'transaction_date'] = (
-    df_clean.loc[mask, 'transaction_date']
-    .apply(lambda x: x.replace(year=2024))
+
+df_clean.loc[mask, 'transaction_date'] = df_clean.loc[mask, 'transaction_date'].apply(
+    lambda x: x.replace(year=2024) if pd.notnull(x) else x
 )
 
-# Fix 4: Fill missing regions
+# FIX 4: Fill missing regions with 'Unknown'
 df_clean['region'] = df_clean['region'].fillna('Unknown')
 
-# Fix 5: Flag duplicate transaction IDs
+# FIX 5: Flag (don't delete) duplicate transaction IDs
 df_clean['is_duplicate'] = df_clean.duplicated(
-    subset=['transaction_id'], keep=False)
+    subset=['transaction_id'], keep=False
+)
+
+# Verify all 5 fixes worked
+print(f'Null regions: {df_clean["region"].isnull().sum()}')
+print(f'Negative amounts: {(df_clean["amount_ngn"] < 0).sum()}')
+print(f'Status values: {sorted(df_clean["status"].dropna().unique())}')
+
+print(
+    f'Date range: {df_clean["transaction_date"].min().date()} to '
+    f'{df_clean["transaction_date"].max().date()}'
+)
 ```
 
 **Verification output after cleaning:**
@@ -109,7 +119,7 @@ Date range:       2024-01-01 to 2024-01-31
 
 ---
 
-## Task 1 — Status Breakdown
+## Task 1 - Status Breakdown
 
 **Business question:** What percentage of January transactions succeeded, failed, or are pending?
 
@@ -142,7 +152,7 @@ Engineering must reduce the failure rate before the February growth campaign.
 
 ---
 
-## Task 2 — Volume by Region (Successful Only)
+## Task 2 - Volume by Region (Successful Only)
 
 **Business question:** Which region generates the most successful transaction volume?
 
@@ -170,7 +180,7 @@ print(region_vol)
 | Ibadan | 4 | 422,620.00 | 105,655.00 |
 
 **Business finding:** Lagos generated the highest successful transaction volume at
-₦2,125,170 — more than double Kano in second place. Lagos customers also have the
+₦2,125,170 - more than double Kano in second place. Lagos customers also have the
 highest average transaction value at ₦236,130 per transaction, confirming a
 higher-spending customer segment. The 5 'Unknown' region transactions (₦995,720)
 represent a reporting gap that must be resolved by recovering region data from
@@ -178,7 +188,7 @@ source systems using user_id as a lookup key.
 
 ---
 
-## Task 3 — Daily Transaction Trend
+## Task 3 - Daily Transaction Trend
 
 **Business question:** How did transaction activity change across January 2024?
 
@@ -206,7 +216,7 @@ retention and re-engagement strategies before February ends.]
 
 ---
 
-## Task 4 — Channel Failure Rate
+## Task 4 - Channel Failure Rate
 
 **Business question:** Which channels have a reliability problem requiring engineering escalation?
 
@@ -221,7 +231,7 @@ ch = df_clean.groupby('channel').agg(
 ).sort_values('failure_rate', ascending=False)
 
 print(ch)
-# Channels above 15% — Python equivalent of SQL HAVING
+# Channels above 15% - Python equivalent of SQL HAVING
 print('Flagged channels:', list(ch[ch['failure_rate'] > 15].index))
 ```
 
@@ -238,13 +248,13 @@ print('Flagged channels:', list(ch[ch['failure_rate'] > 15].index))
 
 **Business finding:** Web (31.2%) and App (20.0%) both exceed the 15% failure rate
 escalation threshold. Web alone loses approximately ₦467,000 in failed transaction
-volume per month. Agent is the reliability benchmark with zero failures — engineering
+volume per month. Agent is the reliability benchmark with zero failures - engineering
 should study what makes Agent infrastructure more resilient. Web reliability must be
 resolved before the February growth campaign.
 
 ---
 
-## Task 5 — Amount Distribution + Outlier Detection
+## Task 5 - Amount Distribution + Outlier Detection
 
 **Business question:** How are transaction amounts distributed, and which transactions should be flagged as high-value outliers?
 
@@ -274,7 +284,7 @@ print(f'\nOutlier transactions: {len(outliers)}')
 - Outlier fence (Q3 + 1.5×IQR): ₦[your result]
 - Transactions above fence: **[X]** flagged as high-value
 
-> 💡 **Mean vs Median:** If mean > median, the distribution is right-skewed —
+> 💡 **Mean vs Median:** If mean > median, the distribution is right-skewed -
 > a few very large transactions are pulling the average up. This is typical in
 > fintech transaction data. Always report both when describing amounts to
 > a non-technical audience.
@@ -288,24 +298,24 @@ monitoring practice.
 
 ## Key Lessons Learned
 
-1. **Python IS case-sensitive, Excel is NOT** — `df[df['status'] == 'success']`
+1. **Python IS case-sensitive, Excel is NOT** - `df[df['status'] == 'success']`
    returns 0 rows after cleaning because all values are 'Success'. Always use
    exact casing after str.title().
 
-2. **Never modify the original DataFrame** — always use `df_clean = df.copy()`.
+2. **Never modify the original DataFrame** - always use `df_clean = df.copy()`.
    If you overwrite df, you lose the raw data permanently.
 
-3. **boolean indexing is SQL WHERE** — `df[df['status'] == 'Success']` is the
+3. **boolean indexing is SQL WHERE** - `df[df['status'] == 'Success']` is the
    Python equivalent of `WHERE status = 'Success'`. Master this pattern.
 
-4. **Mean vs Median tells you about skewness** — a large gap between the two means
+4. **Mean vs Median tells you about skewness** - a large gap between the two means
    your data has outliers pulling the average. Median is more representative of a
    typical transaction.
 
-5. **IQR method is the standard outlier approach** — Q3 + 1.5×IQR is used in
+5. **IQR method is the standard outlier approach** - Q3 + 1.5×IQR is used in
    fraud detection, transaction monitoring, and risk scoring across the industry.
 
-6. **Run All cells before submitting** — use Kernel > Restart & Run All to verify
+6. **Run All cells before submitting** - use Kernel > Restart & Run All to verify
    the notebook runs top to bottom without errors before sharing.
 
 ---
@@ -327,5 +337,3 @@ day06-python-eda/
 ```
 
 ---
-
-*Part of the [30-Day Fintech Data Analyst Bootcamp](../README.md) — PalmPay Analytics Case Study*
