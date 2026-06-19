@@ -125,16 +125,40 @@ Date range:       2024-01-01 to 2024-01-31
 
 ```python
 status_summary = df_clean.groupby('status').agg(
-    count      = ('transaction_id', 'count'),
-    total_vol  = ('amount_ngn',    'sum'),
-    avg_amount = ('amount_ngn',    'mean')
+    count=('transaction_id', 'count'),
+    total_vol=('amount_ngn', 'sum'),
+    avg_amount=('amount_ngn', 'mean')
 ).round(2)
 
 status_summary['pct'] = (
     status_summary['count'] / status_summary['count'].sum() * 100
 ).round(1)
 
-print(status_summary.sort_values('count', ascending=False))
+print(
+    status_summary.sort_values(
+        'count',
+        ascending=False
+    )
+)
+
+status_summary['count'].plot(
+    kind='bar',
+    color=['#375623', '#C00000', '#C55A11'],
+    figsize=(7, 4),
+    edgecolor='white'
+)
+
+plt.title(
+    'Transaction Count by Status — January 2024',
+    fontweight='bold'
+)
+
+plt.xlabel('Status')
+plt.ylabel('Count')
+plt.xticks(rotation=0)
+
+plt.tight_layout()
+plt.show()
 ```
 
 **Result:**
@@ -157,15 +181,37 @@ Engineering must reduce the failure rate before the February growth campaign.
 **Business question:** Which region generates the most successful transaction volume?
 
 ```python
-df_ok = df_clean[df_clean['status'] == 'Success']  # boolean indexing = SQL WHERE
+# Filter to successful transactions — Python equivalent of WHERE status = 'Success'
+df_ok = df_clean[df_clean['status'] == 'Success']
 
 region_vol = df_ok.groupby('region').agg(
-    txn_count  = ('transaction_id', 'count'),
-    total_vol  = ('amount_ngn',    'sum'),
-    avg_amount = ('amount_ngn',    'mean')
-).round(2).sort_values('total_vol', ascending=False)
+    txn_count=('transaction_id', 'count'),
+    total_vol=('amount_ngn', 'sum'),
+    avg_amount=('amount_ngn', 'mean')
+).round(2).sort_values(
+    'total_vol',
+    ascending=False
+)
 
 print(region_vol)
+
+region_vol['total_vol'].sort_values().plot(
+    kind='barh',
+    figsize=(8, 4),
+    color='#2E75B6',
+    edgecolor='white'
+)
+
+plt.title(
+    'Successful Volume by Region — January 2024',
+    fontweight='bold'
+)
+
+plt.xlabel('Total Volume (NGN)')
+plt.ylabel('Region')
+
+plt.tight_layout()
+plt.show()
 ```
 
 **Result:**
@@ -193,15 +239,42 @@ source systems using user_id as a lookup key.
 **Business question:** How did transaction activity change across January 2024?
 
 ```python
-df_clean['transaction_date'] = pd.to_datetime(df_clean['transaction_date'])
+df_clean['transaction_date'] = pd.to_datetime(
+    df_clean['transaction_date']
+)
 
 daily = df_clean.groupby('transaction_date').agg(
-    txn_count    = ('transaction_id', 'count'),
-    daily_volume = ('amount_ngn',    'sum')
+    txn_count=('transaction_id', 'count'),
+    daily_volume=('amount_ngn', 'sum')
 )
 
 peak = daily['txn_count'].idxmax()
-print(f'Peak day: {peak.date()} with {daily["txn_count"].max()} transactions')
+
+print(
+    f'Peak day: {peak.date()} '
+    f'with {daily["txn_count"].max()} transactions'
+)
+
+daily['txn_count'].plot(
+    figsize=(10, 4),
+    color='#1F4E79',
+    marker='o',
+    linewidth=2,
+    markersize=5
+)
+
+plt.title(
+    'Daily Transaction Count — January 2024',
+    fontweight='bold'
+)
+
+plt.xlabel('Date')
+plt.ylabel('Transaction Count')
+
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+plt.show()
 ```
 
 **Key results:**
@@ -222,17 +295,47 @@ retention and re-engagement strategies before February ends.]
 
 ```python
 ch = df_clean.groupby('channel').agg(
-    total   = ('transaction_id', 'count'),
-    success = ('status', lambda x: (x == 'Success').sum()),
-    failed  = ('status', lambda x: (x == 'Failed').sum()),
+    total=('transaction_id', 'count'),
+    success=('status', lambda x: (x == 'Success').sum()),
+    failed=('status', lambda x: (x == 'Failed').sum())
 ).assign(
-    success_rate = lambda x: (x['success'] / x['total'] * 100).round(1),
-    failure_rate = lambda x: (x['failed']  / x['total'] * 100).round(1)
-).sort_values('failure_rate', ascending=False)
+    success_rate=lambda x: (
+        x['success'] / x['total'] * 100
+    ).round(1),
+    failure_rate=lambda x: (
+        x['failed'] / x['total'] * 100
+    ).round(1)
+).sort_values(
+    'failure_rate',
+    ascending=False
+)
 
 print(ch)
-# Channels above 15% - Python equivalent of SQL HAVING
-print('Flagged channels:', list(ch[ch['failure_rate'] > 15].index))
+
+# Channels above 15% — Python equivalent of SQL HAVING
+print(
+    '\nFlagged channels:',
+    list(ch[ch['failure_rate'] > 15].index)
+)
+
+ch[['success_rate', 'failure_rate']].plot(
+    kind='bar',
+    figsize=(7, 4),
+    color=['#375623', '#C00000'],
+    edgecolor='white'
+)
+
+plt.title(
+    'Success vs Failure Rate by Channel',
+    fontweight='bold'
+)
+
+plt.ylabel('Rate (%)')
+plt.xticks(rotation=0)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
 ```
 
 **Result:**
@@ -261,20 +364,65 @@ resolved before the February growth campaign.
 ```python
 amounts = df_clean[df_clean['amount_ngn'] > 0]['amount_ngn']
 
-q1    = amounts.quantile(0.25)
-q3    = amounts.quantile(0.75)
-iqr   = q3 - q1
-fence = q3 + 1.5 * iqr  # standard outlier threshold
+q1 = amounts.quantile(0.25)
+q3 = amounts.quantile(0.75)
 
-print(f'Mean:          NGN {amounts.mean():>12,.2f}')
-print(f'Median:        NGN {amounts.median():>12,.2f}')
+iqr = q3 - q1
+
+# Standard outlier threshold
+fence = q3 + 1.5 * iqr
+
+print(f'Mean: NGN {amounts.mean():>12,.2f}')
+print(f'Median: NGN {amounts.median():>12,.2f}')
 print(f'Std deviation: NGN {amounts.std():>12,.2f}')
 print(f'Q1 (25th pct): NGN {q1:>12,.2f}')
 print(f'Q3 (75th pct): NGN {q3:>12,.2f}')
 print(f'Outlier fence: NGN {fence:>12,.2f}')
 
 outliers = df_clean[df_clean['amount_ngn'] > fence]
+
 print(f'\nOutlier transactions: {len(outliers)}')
+
+print(
+    outliers[
+        [
+            'transaction_id',
+            'amount_ngn',
+            'status',
+            'transaction_type'
+        ]
+    ]
+)
+
+fig, axes = plt.subplots(
+    1,
+    2,
+    figsize=(12, 4)
+)
+
+amounts.hist(
+    bins=20,
+    ax=axes[0],
+    color='#2E75B6',
+    edgecolor='white'
+)
+
+axes[0].set_title(
+    'Amount Distribution',
+    fontweight='bold'
+)
+
+axes[0].set_xlabel('Amount (NGN)')
+
+axes[1].boxplot(amounts)
+
+axes[1].set_title(
+    'Boxplot — Outliers as Dots',
+    fontweight='bold'
+)
+
+plt.tight_layout()
+plt.show()
 ```
 
 **Key statistics:**
